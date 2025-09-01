@@ -1,0 +1,1817 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Folder",
+      "description": "APIs for folder management"
+    },
+    {
+      "name": "User",
+      "description": "APIs for manage user."
+    },
+    {
+      "name": "Session",
+      "description": "APIs for session management"
+    },
+    {
+      "name": "Task",
+      "description": "APIs for task management"
+    }
+  ],
+  "paths": {
+    "/api/v1/tasks/{taskId}": {
+      "get": {
+        "tags": [
+          "Task"
+        ],
+        "summary": "Get task with sessions",
+        "description": "Retrieves detailed information about a specific task including all its associated work sessions.",
+        "operationId": "fetchTaskWithSessions",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task and sessions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskWithSessionsWebResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthenticatedResponse"
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission to view this task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Task"
+        ],
+        "summary": "Replace a task",
+        "description": "Replaces an existing task with the provided details and returns the updated task information.",
+        "operationId": "replaceTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceTaskWebRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Forbidden - User doesn't have permission to update this task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthenticatedResponse"
+          },
+          "200": {
+            "description": "Task replaced successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskSummaryWebResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Task"
+        ],
+        "summary": "Delete a task",
+        "description": "Deletes an existing task by its ID. (Soft Delete)",
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Task deleted successfully"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission to delete this task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthenticatedResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/{taskId}/folder": {
+      "put": {
+        "tags": [
+          "Task"
+        ],
+        "summary": "Move a task to another folder",
+        "description": "Moves the specified task to a different folder.",
+        "operationId": "moveToFolder",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "description": "ID of the task you want to move.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveTaskToFolderWebRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Task moved successfully"
+          },
+          "403": {
+            "description": "User has no permission",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{sessionId}/status": {
+      "put": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Change session status",
+        "description": "Allows changing the status of a work session.\n\n**Authentication:** Requires a valid session token in the 'access_token' HTTP-only cookie.\n**Required permissions:** User must own the session.",
+        "operationId": "actOnSessionStatus",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Session status change request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeSessionStatusWebRequest"
+              },
+              "examples": {
+                "Pause Session Example": {
+                  "summary": "Example request to pause a session",
+                  "description": "Pause Session Example",
+                  "value": {
+                    "action": "PAUSE"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "200": {
+            "description": "Session status changed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionSummaryWebResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission to modify this session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data or invalid action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthenticatedResponse"
+          },
+          "409": {
+            "description": "Conflict - Invalid status transition (e.g., trying to pause an already paused session)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Create a new user",
+        "description": "Creates a new user with the provided information. Returns the created user's details.",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserWebRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreationWebResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email address already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks": {
+      "get": {
+        "tags": [
+          "Task"
+        ],
+        "summary": "List tasks by folder",
+        "description": "Returns a list of tasks for the specified folder. ZonedDateTime fields in the response are adjusted according to the user's timezone, which is obtained from the 'X-TimeZone' request header.",
+        "operationId": "listTasksByFolder",
+        "parameters": [
+          {
+            "name": "folderId",
+            "in": "query",
+            "description": "UUID of the folder to list tasks from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "b456f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          {
+            "name": "X-TimeZone",
+            "in": "header",
+            "description": "User's timezone, used to adjust ZonedDateTime fields in the response",
+            "example": "Europe/Istanbul"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden to view folder",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "200": {
+            "description": "List of tasks returned successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskSummaryWebResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid folderId supplied",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Task"
+        ],
+        "summary": "Create a new task",
+        "description": "Creates a new task with the provided details and returns the created task information.",
+        "operationId": "createTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskWebRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "201": {
+            "description": "Task created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCreationWebResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": "2025-08-28T18:10:53.287668Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/v1/folders",
+                  "additional": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": "2025-08-28T18:10:53.287668Z",
+                  "status": 500,
+                  "error": "internal",
+                  "message": "Unexpected error happened.",
+                  "path": "/api/v1/folders",
+                  "additional": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions": {
+      "post": {
+        "tags": [
+          "Session"
+        ],
+        "summary": "Start a new session for a task",
+        "description": "Initiates a new work session for the specified task.\n\n**Authentication:** Requires a valid session token in the 'access_token' HTTP-only cookie.\n**Required permissions:** User must have permission to work on the specified task.",
+        "operationId": "startSessionForTask",
+        "requestBody": {
+          "description": "Session details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSessionForTaskWebRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                },
+                "examples": {
+                  "Validation Error": {
+                    "summary": "When request validation fails",
+                    "description": "Validation Error",
+                    "value": {
+                      "timestamp": "2025-08-31T12:00:00+03:00",
+                      "status": 400,
+                      "error": "Bad Request",
+                      "message": "Validation failed",
+                      "path": "/api/v1/sessions"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User doesn't have permission to access the task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "201": {
+            "description": "Session started successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionStartWebResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Active session already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthenticatedResponse"
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/folders": {
+      "get": {
+        "tags": [
+          "Folder"
+        ],
+        "summary": "List all folders",
+        "description": "Retrieves a list of summaries for all folders accessible by the user.",
+        "operationId": "listFolders",
+        "responses": {
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Folders listed successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FolderSummaryWebResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Folder"
+        ],
+        "summary": "Create a new folder",
+        "description": "Creates a new folder with the given details. Returns the created folder's information.",
+        "operationId": "createFolder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFolderWebRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Folder created successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FolderCreationWebResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Get authenticated user's details",
+        "description": "Retrieves the details of the currently authenticated user.\n\n**Authentication:** Requires a valid session token in the 'access_token' HTTP-only cookie.\n**Required permissions:** User must be authenticated.",
+        "operationId": "get",
+        "responses": {
+          "403": {
+            "description": "Forbidden - Insufficient permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "User details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailsWebResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthenticatedResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundResponse"
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NotFoundErrorResponse": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the error occurred.",
+            "example": "2025-08-31T12:34:56.789Z"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code of the error.",
+            "example": 400
+          },
+          "path": {
+            "type": "string",
+            "description": "Request path where the error occurred.",
+            "example": "/api/v1/resource"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed error message.",
+            "example": "Invalid input provided."
+          },
+          "resource_type": {
+            "type": "string",
+            "description": "Type of the resource that is not found.",
+            "example": "TASK"
+          },
+          "resource_id": {
+            "type": "string",
+            "description": "ID of the resource that is not found.",
+            "example": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          }
+        }
+      },
+      "UnauthenticatedErrorResponse": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the error occurred.",
+            "example": "2025-08-31T12:34:56.789Z"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code of the error.",
+            "example": 400
+          },
+          "path": {
+            "type": "string",
+            "description": "Request path where the error occurred.",
+            "example": "/api/v1/resource"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed error message.",
+            "example": "Invalid input provided."
+          }
+        }
+      },
+      "ReplaceTaskWebRequest": {
+        "type": "object",
+        "description": "Request object for replacing an existing task",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the task",
+            "example": "Complete project documentation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the task",
+            "example": "Update all API documentation with the latest endpoints"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the task",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "DONE"
+            ],
+            "example": "IN_PROGRESS"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level of the task",
+            "example": "HIGH"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date and time for the task in ISO-8601 format. It cannot be in the past.",
+            "example": "2025-12-31T23:59:59+03:00"
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ]
+      },
+      "TestErrorResponse": {
+        "type": "object",
+        "description": "Standard error response structure for API endpoints.",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the error occurred.",
+            "example": "2025-08-31T12:34:56.789Z"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "description": "HTTP status code of the error.",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "description": "Error code or type.",
+            "example": "task.owner-not-exist"
+          },
+          "message": {
+            "type": "string",
+            "description": "Detailed error message.",
+            "example": "Invalid input provided."
+          },
+          "path": {
+            "type": "string",
+            "description": "Request path where the error occurred.",
+            "example": "/api/v1/resource"
+          },
+          "additional": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+
+              }
+            },
+            "description": "Additional error details, if any.",
+            "example": {
+              "createUserWebRequest": {
+                "firstName": "Name part must be between 1 and 50 characters and cannot be blank."
+              }
+            }
+          }
+        }
+      },
+      "TaskSummaryWebResponse": {
+        "type": "object",
+        "description": "Summary of a task. ZonedDateTime fields are adjusted according to the user's timezone, obtained from the 'X-TimeZone' header.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the task.",
+            "example": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the task.",
+            "example": "Finish documentation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the task.",
+            "example": "Complete the API documentation for the release."
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the task.",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "DONE"
+            ],
+            "example": "IN_PROGRESS"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority of the task.",
+            "example": "HIGH"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the task owner.",
+            "example": "a123f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "folder_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the folder containing the task.",
+            "example": "b456f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date of the task, adjusted to user's timezone from 'X-TimeZone' header.",
+            "example": "2025-08-31T17:00:00+03:00"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp, adjusted to user's timezone from 'X-TimeZone' header.",
+            "example": "2025-08-30T09:00:00+03:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp, adjusted to user's timezone from 'X-TimeZone' header.",
+            "example": "2025-08-31T12:00:00+03:00"
+          }
+        }
+      },
+      "MoveTaskToFolderWebRequest": {
+        "type": "object",
+        "description": "Request object for moving task to folder.",
+        "properties": {
+          "folder_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "folderId to which the task be moved.",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "required": [
+          "folder_id"
+        ]
+      },
+      "ChangeSessionStatusWebRequest": {
+        "type": "object",
+        "description": "Request object for changing session status",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Action to perform on the session. Valid values: PAUSE, RESUME, FINISH",
+            "enum": [
+              "PAUSE",
+              "RESUME",
+              "FINISH"
+            ],
+            "example": "PAUSE"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "SessionSummaryWebResponse": {
+        "type": "object",
+        "description": "Summary information about a work session, including timing and status details",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the session",
+            "example": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name or description of the session",
+            "example": "Morning coding session"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the session",
+            "enum": [
+              "RUNNING",
+              "PAUSED",
+              "FINISHED"
+            ],
+            "example": "COMPLETED"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the user who owns this session",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the task this session is associated with",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the session was started in ISO-8601 format",
+            "example": "2025-01-01T09:00:00+03:00"
+          },
+          "paused_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the session was last paused in ISO-8601 format (if applicable)",
+            "example": "2025-01-01T10:30:00+03:00"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the session was finished in ISO-8601 format (if finished)",
+            "example": "2025-01-01T11:30:00+03:00"
+          },
+          "total_pause": {
+            "type": "object",
+            "description": "Total time the session was paused in ISO-8601 duration format",
+            "example": "PT30M",
+            "properties": {
+              "seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "zero": {
+                "type": "boolean"
+              },
+              "nano": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "negative": {
+                "type": "boolean"
+              },
+              "positive": {
+                "type": "boolean"
+              },
+              "units": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "durationEstimated": {
+                      "type": "boolean"
+                    },
+                    "duration": {
+                      "type": "object",
+                      "properties": {
+                        "seconds": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "zero": {
+                          "type": "boolean"
+                        },
+                        "nano": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "negative": {
+                          "type": "boolean"
+                        },
+                        "positive": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "timeBased": {
+                      "type": "boolean"
+                    },
+                    "dateBased": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "total_time": {
+            "type": "object",
+            "description": "Total active time spent in this session in ISO-8601 duration format (excluding pauses)",
+            "example": "PT2H",
+            "properties": {
+              "seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "zero": {
+                "type": "boolean"
+              },
+              "nano": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "negative": {
+                "type": "boolean"
+              },
+              "positive": {
+                "type": "boolean"
+              },
+              "units": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "durationEstimated": {
+                      "type": "boolean"
+                    },
+                    "duration": {
+                      "type": "object",
+                      "properties": {
+                        "seconds": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "zero": {
+                          "type": "boolean"
+                        },
+                        "nano": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "negative": {
+                          "type": "boolean"
+                        },
+                        "positive": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "timeBased": {
+                      "type": "boolean"
+                    },
+                    "dateBased": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CreateUserWebRequest": {
+        "type": "object",
+        "description": "Request object for creating a new user",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email address",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password. Must be 8-30 characters, no white spaces.",
+            "example": "MyS3cretPwd",
+            "pattern": "^\\S*$"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "User's first name",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "User's last name",
+            "example": "Doe"
+          }
+        },
+        "required": [
+          "email",
+          "first_name",
+          "last_name",
+          "password"
+        ]
+      },
+      "UserCreationWebResponse": {
+        "type": "object",
+        "description": "Response object for user creation",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the user",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user",
+            "example": "john.doe@example.com"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "First name of the user",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Last name of the user",
+            "example": "Doe"
+          }
+        }
+      },
+      "CreateTaskWebRequest": {
+        "type": "object",
+        "description": "Request object for creating a new task",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the task",
+            "example": "Complete project documentation",
+            "maxLength": 50,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the task",
+            "example": "Update all API documentation with the latest endpoint changes",
+            "maxLength": 240,
+            "minLength": 0
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level of the task",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "example": "HIGH"
+          },
+          "folder_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the folder where the task will be created",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date and time for the task in ISO-8601 format. It must be in the future.",
+            "example": "2025-12-31T23:59:59+03:00"
+          }
+        },
+        "required": [
+          "folder_id",
+          "name"
+        ]
+      },
+      "TaskCreationWebResponse": {
+        "type": "object",
+        "description": "Response object for the task newly created.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the task created newly.",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the task",
+            "example": "Complete project documentation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the task",
+            "example": "Update all API documentation with the latest endpoint changes"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level of the task",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "example": "HIGH"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the task",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "DONE"
+            ],
+            "example": "NOT_STARTED"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the user which owns the task.",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "folder_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the folder where the task will be created",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date and time for the task in ISO-8601 format",
+            "example": "2025-12-31T23:59:59+03:00"
+          }
+        }
+      },
+      "StartSessionForTaskWebRequest": {
+        "type": "object",
+        "description": "Request object for starting a new session for a task",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the session",
+            "example": "Morning Work Session"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the task to start a session for",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        },
+        "required": [
+          "name",
+          "task_id"
+        ]
+      },
+      "SessionStartWebResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateFolderWebRequest": {
+        "type": "object",
+        "description": "Request object for creating a new folder.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the folder to be created.",
+            "example": "Project Documents"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the folder.",
+            "example": "Contains all project-related documents."
+          },
+          "label_color_hex": {
+            "type": "string",
+            "description": "Hexadecimal color code for the folder label.",
+            "example": "#FF5733"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "FolderCreationWebResponse": {
+        "type": "object",
+        "description": "Response object for folder creation containing folder details.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the folder",
+            "example": "b3b6c8e2-8e6d-4e7a-9c2e-1a2b3c4d5e6f"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the folder",
+            "example": "Project Documents"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the folder",
+            "example": "Contains all project-related documents."
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the folder owner",
+            "example": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"
+          },
+          "label_color_hex": {
+            "type": "string",
+            "description": "Hexadecimal color code for the folder label",
+            "example": "#FF5733"
+          }
+        }
+      },
+      "TaskWithSessionsWebResponse": {
+        "type": "object",
+        "description": "Task details including its associated sessions and time tracking information",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the task",
+            "example": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the task",
+            "example": "Complete project documentation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the task",
+            "example": "Update all API documentation with the latest endpoints and examples"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the task",
+            "enum": [
+              "NO_STARTED",
+              "IN_PROGRESS",
+              "DONE"
+            ],
+            "example": "IN_PROGRESS"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level of the task",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "example": "HIGH"
+          },
+          "sessions": {
+            "type": "array",
+            "description": "List of all work sessions associated with this task",
+            "items": {
+              "$ref": "#/components/schemas/SessionSummaryWebResponse"
+            }
+          },
+          "owner_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the user who owns the task",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "folder_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the folder this task belongs to",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Due date and time for the task in ISO-8601 format",
+            "example": "2025-12-31T23:59:59+03:00"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the task was created in ISO-8601 format",
+            "example": "2025-01-01T12:00:00+03:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the task was last updated in ISO-8601 format",
+            "example": "2025-01-02T15:30:00+03:00"
+          },
+          "total_time": {
+            "type": "object",
+            "description": "Total time spent on this task across all sessions in ISO-8601 duration format",
+            "example": "PT2H30M",
+            "properties": {
+              "seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "zero": {
+                "type": "boolean"
+              },
+              "nano": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "negative": {
+                "type": "boolean"
+              },
+              "positive": {
+                "type": "boolean"
+              },
+              "units": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "durationEstimated": {
+                      "type": "boolean"
+                    },
+                    "duration": {
+                      "type": "object",
+                      "properties": {
+                        "seconds": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "zero": {
+                          "type": "boolean"
+                        },
+                        "nano": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "negative": {
+                          "type": "boolean"
+                        },
+                        "positive": {
+                          "type": "boolean"
+                        }
+                      }
+                    },
+                    "timeBased": {
+                      "type": "boolean"
+                    },
+                    "dateBased": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "UserDetailsWebResponse": {
+        "type": "object",
+        "description": "Detailed information about a user, including personal and system metadata",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the user",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the user",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address of the user",
+            "example": "john.doe@example.com"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the user account was created in ISO-8601 format",
+            "example": "2025-01-01T12:00:00+03:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the user account was last updated in ISO-8601 format",
+            "example": "2025-01-15T15:30:00+03:00"
+          }
+        }
+      },
+      "FolderSummaryWebResponse": {
+        "type": "object",
+        "description": "Summary of a folder",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the folder",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the folder",
+            "example": "My Work"
+          },
+          "label_color_hex": {
+            "type": "string",
+            "description": "Label color of the folder in HEX format",
+            "example": "#FF0000"
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFoundResponse": {
+        "description": "Resource not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/NotFoundErrorResponse"
+            }
+          }
+        }
+      },
+      "UnauthenticatedResponse": {
+        "description": "Unauthorized - Login is required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UnauthenticatedErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}
