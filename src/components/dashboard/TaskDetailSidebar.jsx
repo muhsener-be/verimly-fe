@@ -4,7 +4,6 @@ import { Calendar, Flag, Hash, Clock } from 'lucide-react';
 import SessionList from './SessionList'; // SessionList'i buradan import ediyoruz
 import Button from '../ui/Button';
 import { PlayCircle } from 'lucide-react';
-import { useSession } from '../../contexts/SessionProvider';
 import StartSessionButton from './StartSessionButton';
 
 const TaskDetailSidebar = ({ task, loading }) => {

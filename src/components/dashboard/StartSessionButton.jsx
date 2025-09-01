@@ -1,11 +1,11 @@
 import React from 'react';
-import { useSession } from '../../contexts/SessionProvider';
+import { useAuth } from '../../contexts/AuthProvider';
 import Button from '../ui/Button';
 import { PlayCircle } from 'lucide-react';
 
 const StartSessionButton = ({ taskId }) => {
   // Bu küçük bileşen, gürültülü context'i tek başına dinleyecek.
-  const { startSession, activeSession } = useSession();
+  const { startSession, activeSession } = useAuth();
 
 
   const handleStartSession = async () => {

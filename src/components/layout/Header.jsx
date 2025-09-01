@@ -1,15 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthProvider';
 import Button from '../ui/Button';
 import Logo from './Logo';
 import { LogOut } from 'lucide-react';
 import ActiveSessionTracker from './ActiveSessionTracker';
-import { useSession } from '../../contexts/SessionProvider';
 
 const Header = () => {
   const { user, logout } = useAuth(); // Kullanıcı bilgisi için
-  const { activeSession } = useSession(); // Aktif seans göstergesi için
+  const { activeSession } = useAuth(); // Aktif seans göstergesi için
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">

@@ -2,7 +2,8 @@ import React from 'react';
 import { useState } from 'react';
 
 import {Timer, Pause, Play, Square } from 'lucide-react'
-import { useSession } from '../../contexts/SessionProvider';
+import { useAuth } from '../../contexts/AuthProvider';
+
 
 const ActiveSessionTracker = () => {
   // Gerekli bilgileri doğrudan context'ten alıyoruz
@@ -12,7 +13,7 @@ const ActiveSessionTracker = () => {
     pauseSession,
     resumeSession,
     finishSession 
-  } = useSession();
+  } = useAuth();
 
 const [isMenuOpen, setIsMenuOpen] = useState(false);
 
