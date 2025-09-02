@@ -5,7 +5,7 @@ import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import PrivateRoute from './routes/PrivateRoute';
-
+import SessionPage from './pages/SessionPage'
 function App() {
   return (
     <Router>
@@ -19,6 +19,13 @@ function App() {
               <DashboardPage />
             </PrivateRoute>
 
+          } />
+        {/* Yeni rotayı ekle */}
+        <Route path='/session'
+          element={
+            <PrivateRoute>
+              <SessionPage />
+            </PrivateRoute>
           } />
       </Routes>
     </Router>

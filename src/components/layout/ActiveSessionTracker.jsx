@@ -1,13 +1,10 @@
-import React from 'react';
-import { useState } from 'react';
-
-import {Timer, Pause, Play, Square } from 'lucide-react'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // Link importu eklendi
+import { Timer, Pause, Play, Square, ExternalLink } from 'lucide-react'; // ExternalLink ikonu eklendi
 import { useAuth } from '../../contexts/AuthProvider';
 
-
 const ActiveSessionTracker = () => {
-  // Gerekli bilgileri doğrudan context'ten alıyoruz
-   const { 
+  const { 
     activeSession, 
     sessionElapsedTime,
     pauseSession,
@@ -15,10 +12,9 @@ const ActiveSessionTracker = () => {
     finishSession 
   } = useAuth();
 
-const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (!activeSession) return null;
-
 
   const isPaused = activeSession.status === 'PAUSED';
 
@@ -27,17 +23,16 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
     setIsMenuOpen(false);
   };
 
-    const handleFinish = () => {
+  const handleFinish = () => {
     finishSession();
     setIsMenuOpen(false);
   };
 
-
   return (
-<div className="relative">
-      {/* Ana Buton */}
+    <div className="relative">
       <button 
         onClick={() => setIsMenuOpen(!isMenuOpen)}
+        onBlur={() => setTimeout(() => setIsMenuOpen(false), 200)} // Menü dışına tıklayınca kapat
         className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${
           isPaused 
           ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' 
@@ -49,10 +44,17 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
         <span className="font-mono bg-white px-1.5 rounded">{sessionElapsedTime}</span>
       </button>
 
-      {/* Açılır Menü */}
       {isMenuOpen && (
         <div className="absolute top-full mt-2 w-48 bg-white border rounded-md shadow-lg z-10">
           <ul className="py-1">
+            {/* Yeni "Tam Ekran" Linki */}
+            <li>
+              <Link to="/session" target="_blank" className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <ExternalLink size={16} />
+                Tam Ekran Sayaç
+              </Link>
+            </li>
+            <hr className="my-1"/>
             <li>
               <button onClick={handleTogglePause} className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 {isPaused ? <Play size={16}/> : <Pause size={16}/>}

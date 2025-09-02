@@ -130,6 +130,8 @@ const DashboardPage = () => {
                         <TaskDetailSidebar
                             task={taskDetails}
                             loading={taskDetailLoading}
+                            // onAction prop'unu ekliyoruz
+                            onAction={() => fetchTaskDetails(selectedTaskId)}
                         />
                     </div>
                 </main>

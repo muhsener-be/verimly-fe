@@ -1,17 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { getMe, loginUser, logoutUser, apiStartSession, apiChangeSessionStatus } from '../services/api';
+// ... diğer importlar aynı ...
+import { getMe, logoutUser, apiStartSession, apiChangeSessionStatus } from '../services/api';
 import { parseDurationToSeconds, formatSecondsToTime } from '../utils/formatters';
 
-// Context'i oluşturuyoruz
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  // ... state tanımlamaları ve useEffect'ler aynı kalacak ...
   const [user, setUser] = useState(null);
   const [activeSession, setActiveSession] = useState(null);
   const [sessionElapsedTime, setSessionElapsedTime] = useState('00:00');
-  const [loading, setLoading] = useState(true); // Sadece ilk açılış için
+  const [loading, setLoading] = useState(true);
 
-  // --- Session Zamanlayıcı Mantığı (SessionProvider'dan taşındı) ---
   useEffect(() => {
     let interval;
     if (activeSession && activeSession.status === 'RUNNING') {
@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [activeSession]);
 
-  // --- İlk Yükleme Mantığı ---
   useEffect(() => {
     const checkUserAndSession = async () => {
       try {
@@ -50,8 +49,7 @@ export const AuthProvider = ({ children }) => {
     checkUserAndSession();
   }, []);
 
-  // --- Auth ve Session Fonksiyonları ---
-
+  // --- Auth Fonksiyonları ---
   const login = useCallback((loginData) => {
     setUser(loginData.user);
     const sessionData = loginData.active_sessions && loginData.active_sessions.length > 0 ? loginData.active_sessions[0] : null;
@@ -73,12 +71,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+
+  // --- YENİ VE GÜNCELLENMİŞ SEANS FONKSİYONLARI ---
+
   const startSession = async (taskId, sessionName) => {
+    if (activeSession) throw new Error("Zaten aktif bir seans var.");
     const response = await apiStartSession({ task_id: taskId, name: sessionName });
     const sessionData = response.data;
-    if (!sessionData.total_pause) {
-      sessionData.total_pause = 'PT0S';
-    }
+    if (!sessionData.total_pause) sessionData.total_pause = 'PT0S';
     setActiveSession(sessionData);
     return sessionData;
   };
@@ -90,22 +90,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const resumeSession = async () => {
-    if (activeSession && activeSession.status === 'PAUSED') {
-      const response = await apiChangeSessionStatus(activeSession.id, 'RESUME');
-      setActiveSession(response.data);
+  // Hem PAUSED hem de FINISHED durumundan devam etmeyi bu fonksiyon yönetecek
+  const resumeSession = async (sessionIdToResume) => {
+    const sessionId = sessionIdToResume || activeSession?.id;
+    if (!sessionId) return;
+    
+    // Zaten çalışan bir seans varsa yeni bir seans başlatmayı engelle
+    if (activeSession && activeSession.status === 'RUNNING' && activeSession.id !== sessionId) {
+        throw new Error("Önce mevcut seansı duraklatmalı veya bitirmelisiniz.");
     }
-  };
 
-  const finishSession = async () => {
-    if (activeSession) {
-      await apiChangeSessionStatus(activeSession.id, 'FINISH');
+    const response = await apiChangeSessionStatus(sessionId, 'RESUME');
+    setActiveSession(response.data);
+  };
+  
+  const finishSession = async (sessionIdToFinish) => {
+    const sessionId = sessionIdToFinish || activeSession?.id;
+    if (!sessionId) return;
+
+    await apiChangeSessionStatus(sessionId, 'FINISH');
+    
+    // Eğer bitirilen seans aktif seans ise, state'i temizle
+    if (activeSession && activeSession.id === sessionId) {
       setActiveSession(null);
       setSessionElapsedTime('00:00');
     }
+    // Değilse, Dashboard'un listeyi yenilemesi gerekecek (bu otomatik olmalı)
   };
   
-  // Context aracılığıyla sağlanacak tüm değerler
   const value = {
     user,
     loading,
@@ -115,8 +127,8 @@ export const AuthProvider = ({ children }) => {
     sessionElapsedTime,
     startSession,
     pauseSession,
-    resumeSession,
-    finishSession,
+    resumeSession, // Artık ID alabiliyor
+    finishSession, // Artık ID alabiliyor
   };
 
   return (
@@ -126,5 +138,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook'u da buradan export ediyoruz
 export const useAuth = () => useContext(AuthContext);

@@ -6,7 +6,7 @@ import Button from '../ui/Button';
 import { PlayCircle } from 'lucide-react';
 import StartSessionButton from './StartSessionButton';
 
-const TaskDetailSidebar = ({ task, loading }) => {
+const TaskDetailSidebar = ({ task, loading, onAction }) => {
 
 
   // const handleStartSession = async () => {
@@ -69,7 +69,7 @@ const TaskDetailSidebar = ({ task, loading }) => {
       {/* 2. Seanslar Bölümü */}
       <div className="flex-1 p-6 overflow-y-auto">
         <h3 className="text-lg font-semibold mb-4">Çalışma Seansları</h3>
-        <SessionList sessions={task.sessions} />
+        <SessionList sessions={task.sessions} onAction={onAction} />
       </div>
     </aside>
   );
